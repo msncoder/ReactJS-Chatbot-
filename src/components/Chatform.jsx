@@ -1,18 +1,32 @@
 import React, { useRef } from "react";
 
-function Chatform({ setChatHistory }) {
+function Chatform({ chatHistory, setChatHistory, generateBotResponse }) {
   const inpRef = useRef();
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const userMessage = inpRef.current.value.trim();
     if (!userMessage) return;
-    console.log(userMessage);
+    // console.log(userMessage);
     inpRef.current.value = "";
     setChatHistory((history) => [
       ...history,
       { role: "user", text: userMessage },
     ]);
+
+    setTimeout(() => {
+      setChatHistory((history) => [
+        ...history,
+        { role: "model", text: "Thinking" },
+      ]);
+      generateBotResponse([
+        ...chatHistory,
+        {
+          role: "user",
+          text: userMessage,
+        },
+      ]);
+    }, 600);
   };
 
   return (
