@@ -23,7 +23,7 @@ function Chatform({ chatHistory, setChatHistory, generateBotResponse }) {
         ...chatHistory,
         {
           role: "user",
-          text: userMessage,
+          text: `using the details provided above, please address this query: ${userMessage}`,
         },
       ]);
     }, 600);

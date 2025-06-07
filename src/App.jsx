@@ -1,17 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatbotIcon from "./components/ChatbotIcon";
 import Chatform from "./components/Chatform";
 import Chatmessage from "./components/Chatmessage";
+import { companyInfo } from "./companyInfo";
 
 function App() {
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState([
+    {
+      hiddenChat: true,
+      role: "model",
+      text: companyInfo,
+    },
+  ]);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const chatBodyRef = useRef();
   // console.log(chatHistory);
 
   const generateBotResponse = async (history) => {
-    const updateHistory = (text) => {
+    const updateHistory = (text, isError = false) => {
       setChatHistory((prev) => [
         ...prev.filter((msg) => msg.text !== "Thinking..."),
-        { role: "model", text },
+        { role: "model", text, isError },
       ]);
     };
 
@@ -39,12 +48,27 @@ function App() {
 
       updateHistory(text.replace(/\*\*(.*?)\*\*/g, "$1").trim());
     } catch (error) {
-      console.log(error);
+      updateHistory(error.message, true);
     }
   };
 
+  useEffect(() => {
+    chatBodyRef.current.scrollTo({
+      top: chatBodyRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [chatHistory]);
+
   return (
-    <div className="container">
+    <div className={`container ${showChatbot ? "show-chatbot" : ""}`}>
+      <button
+        onClick={() => setShowChatbot((prev) => !prev)}
+        className="chatbot-toggler"
+      >
+        <span className="material-symbols-rounded">close</span>
+        <span className="material-symbols-rounded">mode_comment</span>
+      </button>
+
       <div className="chatbot-popup">
         {/* chat Header  */}
         <div className="chat-header">
@@ -52,13 +76,16 @@ function App() {
             <ChatbotIcon />
             <h2 className="logo-text">ChatBot</h2>
           </div>
-          <button className="material-symbols-outlined">
+          <button
+            onClick={() => setShowChatbot((prev) => !prev)}
+            className="material-symbols-outlined"
+          >
             keyboard_arrow_down
           </button>
         </div>
 
         {/* chat body */}
-        <div className="chatbody">
+        <div className="chatbody" ref={chatBodyRef}>
           <div className="message bot-message">
             <ChatbotIcon />
             <p className="message-text">
